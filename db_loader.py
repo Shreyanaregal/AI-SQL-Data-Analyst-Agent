@@ -4,7 +4,6 @@ import os
 import re
 import tempfile
 
-# ✅ Global DB path using temp directory
 DB_PATH = os.path.join(tempfile.gettempdir(), "database.db")
 
 def load_csv_to_sqlite(csv_file, db_path=None):
@@ -34,7 +33,6 @@ def load_csv_to_sqlite(csv_file, db_path=None):
         "db_path": db_path,
         "dataframe": df
     }
-
 
 def get_table_info(db_path=None):
     if db_path is None:
