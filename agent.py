@@ -10,23 +10,18 @@ load_dotenv()
 
 DB_PATH = os.path.join(tempfile.gettempdir(), "database.db")
 
-def create_agent(db_path=None):
-    if db_path is None:
-        db_path = DB_PATH
+def create_agent(db_path):
+    # Read from Streamlit secrets first, fallback to env var
+    api_key = st.secrets.get("GROQ_API_KEY") or os.getenv("GROQ_API_KEY")
 
-    db_uri = f"sqlite:///{db_path}"
-    db = SQLDatabase.from_uri(db_uri)
-
-    api_key = None
-    try:
-        api_key = st.secrets["GROQ_API_KEY"]
-    except:
-        api_key = os.getenv("GROQ_API_KEY")
+    if not api_key:
+        raise ValueError("GROQ_API_KEY is missing! Add it to Streamlit secrets.")
 
     llm = ChatGroq(
         api_key=api_key,
         model_name="llama-3.3-70b-versatile",
         temperature=0
+    
     )
 
     agent = create_sql_agent(
