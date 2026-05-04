@@ -1,11 +1,11 @@
 import streamlit as st
-import sqlite3
+import os
+import tempfile
 import pandas as pd
 from db_loader import load_csv_to_sqlite, get_table_info, DB_PATH
 from agent import run_query
 from visualizer import auto_visualize, fetch_data
 
-# ─── Page Config ───────────────────────────────────────────
 st.set_page_config(
     page_title="AI SQL Data Analyst",
     page_icon="🤖",
@@ -15,7 +15,6 @@ st.set_page_config(
 st.title("🤖 AI SQL Data Analyst Agent")
 st.markdown("Upload a CSV → Ask questions in plain English → Get answers + charts!")
 
-# ─── Session State ─────────────────────────────────────────
 if "db_ready" not in st.session_state:
     st.session_state.db_ready = False
 if "table_info" not in st.session_state:
@@ -25,7 +24,6 @@ if "df_preview" not in st.session_state:
 if "db_path" not in st.session_state:
     st.session_state.db_path = DB_PATH
 
-# ─── Sidebar: CSV Upload ────────────────────────────────────
 with st.sidebar:
     st.header("📁 Upload Your CSV")
     uploaded_file = st.file_uploader("Choose a CSV file", type=["csv"])
@@ -45,16 +43,13 @@ with st.sidebar:
         for col in result["columns"]:
             st.write(f"• {col}")
 
-# ─── Main Area ──────────────────────────────────────────────
 if st.session_state.db_ready:
 
-    # Data Preview
     with st.expander("👀 Preview Data", expanded=False):
         st.dataframe(st.session_state.df_preview, use_container_width=True)
 
     st.divider()
 
-    # Question Input
     st.subheader("💬 Ask a Question")
     question = st.text_input(
         "Type your question in plain English:",
@@ -71,11 +66,9 @@ if st.session_state.db_ready:
 
         st.divider()
 
-        # Answer
         st.subheader("✅ Answer")
         st.success(result["answer"])
 
-        # Auto Chart
         st.subheader("📊 Auto Visualization")
         try:
             table_name = list(st.session_state.table_info.keys())[0]
@@ -92,7 +85,6 @@ if st.session_state.db_ready:
         st.warning("⚠️ Please type a question first!")
 
 else:
-    # Empty state
     st.info("👈 Please upload a CSV file from the sidebar to get started!")
     st.markdown("""
     ### 🚀 How it works:
